@@ -159,6 +159,10 @@ echo -e "Current analysis project consists of $samplecnt samples\n" > "$GenRep";
 
 #./20_isfinder.sh -w $WORKDIR -m $GENOMES 
 
+#./21_iets.sh -w $WORKDIR -m $GENOMES 
+
+./22_replicon.sh -w $WORKDIR -m $GENOMES
+
 #./99_reporting.sh -w $WORKDIR -n $LOG -l $TMP -r $REPORTING -q $ARCHIVE
 
 
