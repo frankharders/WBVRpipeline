@@ -128,10 +128,13 @@ countS=$(cat samples.txt | wc -l);
 
 ls ./references/seg*.fa > segment.lst;
 
-mkdir -p ./21_repliconMapping;
+mkdir -p ./22_repliconMapping;
+mkdir -p ./22_repliconAssembly;
 
-REPLICON=./21_repliconMapping;
+REPLICON=./22_repliconMapping;
+ASSEMBLY=./22_repliconAssembly;
 
+reference=./references/R64shufflon.fa;
 
 OUTdir=./02_polished;
 
@@ -143,13 +146,7 @@ while [ $count0 -le $countS ];do
 
 echo $SAMPLE;
 
-while read segment;do
-
-
-#echo $segment;
-
-
-REF=$(basename $segment |  cut -f1 -d'.');
+REF=$(basename $reference |  cut -f1 -d'.');
 
 echo $REF;
 
@@ -158,29 +155,17 @@ OUTPUT2=$OUTdir/$SAMPLE/$SAMPLE'_R2.QTR.adapter.correct.fq.gz';
 
 LOGm="$PWD"/LOGS/$SAMPLE.repliconMapping.$REF.log;
 LOGv="$PWD"/LOGS/$SAMPLE.repliconMapping.$REF.variants.log;	
+LOGa="$PWD"/LOGS/$SAMPLE.tadpole.assembly.replicon.$REF.log;
 
 #echo -e "R1=$OUTPUT1";
 #echo -e "R2=$OUTPUT2";
 
-
 COVSTATS="$REPLICON"/"$SAMPLE"."$REF".covstats;
+OUTM="$REPLICON"/"$SAMPLE"."$REF".fastq.gz;
 
-bbmap.sh -Xmx12g in1="$OUTPUT1" in2="$OUTPUT2" ref="$segment" outm="$REPLICON"/"$SAMPLE"."$REF".sam.gz sam=1.3 ow covstats="$COVSTATS" bs=bs.sh pigz unpigz > "$LOGm" 2>&1;
+bbmap.sh -Xmx12g in1="$OUTPUT1" in2="$OUTPUT2" ref="$reference" outm="$OUTM" sam=1.3 ow covstats="$COVSTATS" pigz unpigz nodisk=t > "$LOGm" 2>&1;
 
-		samtools view -bShu "$REPLICON"/"$SAMPLE"."$REF".sam.gz | samtools sort -m 2G -@ 3 - -o "$REPLICON"/"$SAMPLE"."$REF".sorted.bam;
-		samtools index "$REPLICON"/"$SAMPLE"."$REF".sorted.bam;
-
-
-
-
-cat $COVSTATS;
-callvariants.sh in="$REPLICON"/"$SAMPLE"."$REF".sam.gz ref="$segment"  vcf="$REPLICON"/"$SAMPLE"."$REF".vars.vcf.gz mincov=1 ow ploidy=1 prefilter > "$LOGv" 2>&1;#out="$REPLICON"/"$SAMPLE"."$REF".var
-
-zcat "$REPLICON"/"$SAMPLE"."$REF".vars.vcf.gz | sed 1,55d;
- echo -e "\n";
- 
-
-done < segment.lst
+tadwrapper.sh in="$TADPOLEout" out="$ASSEMBLY"/"$SAMPLE".tadwrapper_contigs_%.fa outfinal="$TADPOLEout" k=40,124,217 bisect fastawrap=10000000 > "$LOGa" 2>&1;
 
 count0=$((count0+1));
 
