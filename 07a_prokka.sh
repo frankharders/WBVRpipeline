@@ -127,7 +127,7 @@ echo $SAMPLE;
 
 
 # Choose the names of the output files
-prokka --outdir "$PROKKA"/"$SAMPLE" --prefix "$SAMPLE" "$GENOMES"/"$SAMPLE"_contigs.fa --usegenus --useproteins --cpus "$CPU"
+prokka --outdir "$PROKKA"/"$SAMPLE" --prefix "$SAMPLE" "$GENOMES"/"$SAMPLE"_contigs.fa --cpus "$CPU"
 
 # Visualize it in Artemis
 #art mydir/mygenome.gff
