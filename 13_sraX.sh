@@ -5,6 +5,9 @@ eval "$(conda shell.bash hook)";
 conda activate amr-sraX;
 
 
+## ToDo eigen DB IS-finder testen samen met CARD of alleen resfinder DB
+
+
 #create several directories
 while getopts "w:m:l:n:r:q:o:" opt; do
   case $opt in
