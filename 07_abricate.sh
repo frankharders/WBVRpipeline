@@ -7,7 +7,7 @@ conda activate amr-abricate;
 
 cnt=$(cat samples.txt | wc -l);
 
-while getopts "w:j:r:l:m:n:" opt; do
+while getopts "w:j:r:l:m:q:n:" opt; do
   case $opt in
      w)
       echo "-w was triggered! $OPTARG"
