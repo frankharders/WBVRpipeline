@@ -136,7 +136,7 @@ abricate-get_db --db $DB --force;
 
 abricate $GENOMES/*.fa --db "$DB" > $TMP/results."$DB".tab;
 
-abricate --summary $TMP/results."$DB".tab > $ABRICATE/summary."$DB".tab;
+abricate --summary $ABRICATE/results."$DB".tab > $ABRICATE/summary."$DB".tab;
 
 
 
