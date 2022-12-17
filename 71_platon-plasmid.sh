@@ -2,7 +2,7 @@
 
 ##  activate the environment for this downstream analysis
 eval "$(conda shell.bash hook)";
-conda activate bakta;
+conda activate amr-platon;
 
 
 cnt=$(cat samples.txt | wc -l);
