@@ -126,6 +126,51 @@ exit 1
 #Bakta: rapid and standardized annotation of bacterial genomes via alignment-free sequence identification.
 #Microbial Genomics, 7(11). https://doi.org/10.1099/mgen.0.000685
 #
-#
-#
+#####
 
+##### table2asn_GFF
+#
+# download table2asn_GFF for Linux
+#$ wget https://ftp.ncbi.nih.gov/toolbox/ncbi_tools/converters/by_program/table2asn_GFF/linux64.table2asn_GFF.gz
+#$ gunzip linux64.table2asn_GFF.gz
+#
+## create the SQN file:
+#$ linux64.table2asn_GFF -M n -J -c w -t template.txt -V vbt -l paired-ends -i GCF_000008865.2.fna -f GCF_000008865.2.gff3 -o GCF_000008865.2.sqn -Z
+#####
+
+##### bakta_plot
+#
+#usage: bakta_plot [--config CONFIG] [--output OUTPUT] [--prefix PREFIX] [--sequences SEQUENCES] [--type {features,cog}] [--help] [--verbose] [--debug] [--tmp-dir TMP_DIR] [--version] <input>
+#
+#Rapid & standardized annotation of bacterial genomes, MAGs & plasmids
+#
+#positional arguments:
+#  <input>               Bakta annotations in JSON format
+#
+#Input / Output:
+#  --config CONFIG, -c CONFIG
+#                        Plotting configuration in YAML format
+#  --output OUTPUT, -o OUTPUT
+#                        Output directory (default = current working directory)
+#  --prefix PREFIX, -p PREFIX
+#                        Prefix for output files
+#
+#Plotting:
+#  --sequences SEQUENCES
+#                        Sequences to plot: comma separated number or name (default = all, numbers one-based)
+#  --type {features,cog}
+#                        Plot type: feature/cog (default = features)
+#
+#General:
+#  --help, -h            Show this help message and exit
+#  --verbose, -v         Print verbose information
+#  --debug               Run Bakta in debug mode. Temp data will not be removed.
+#  --tmp-dir TMP_DIR     Location for temporary files (default = system dependent auto detection)
+#  --version             show program's version number and exit
+#
+#bakta_plot input.json
+#
+#bakta_plot --output test --prefix test --config config.yaml --sequences 1,2 input.json
+#
+#
+###### 

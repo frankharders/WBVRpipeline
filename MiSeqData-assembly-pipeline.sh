@@ -113,7 +113,7 @@ echo -e "Current analysis project consists of $samplecnt samples\n" > "$GenRep";
 
 
 
-./00_structure.sh -w $WORKDIR -a $RAW_FASTQ -b $RAWSTATS -c $POLISHED -d $TRIMMEDSTATS -e $SHOVILL -f $QUAST -g $QUASTparse -h $MLST -i $MLSTparse -l $TMP -n $LOG -r $REPORTING -m $GENOMES -j $ABRICATE -k $AMRFINDER -s $STARAMR -t $RGI -q $ARCHIVE                  ; 
+#./00_structure.sh -w $WORKDIR -a $RAW_FASTQ -b $RAWSTATS -c $POLISHED -d $TRIMMEDSTATS -e $SHOVILL -f $QUAST -g $QUASTparse -h $MLST -i $MLSTparse -l $TMP -n $LOG -r $REPORTING -m $GENOMES -j $ABRICATE -k $AMRFINDER -s $STARAMR -t $RGI -q $ARCHIVE                  ; 
 
 #./01_fastqc.sh -w $WORKDIR -a $RAW_FASTQ -b $RAWSTATS -r $REPORTING -q $ARCHIVE
 
@@ -145,7 +145,7 @@ echo -e "Current analysis project consists of $samplecnt samples\n" > "$GenRep";
 
 #./13_sraX.sh -w $WORKDIR -m $GENOMES -l $TMP -n $LOG -r $REPORTING -q $ARCHIVE -o $SRAX
 
-./14_mumi.sh -w $WORKDIR -m $GENOMES -l $TMP -n $LOG -p $MUMI
+#./14_mumi.sh -w $WORKDIR -m $GENOMES -l $TMP -n $LOG -p $MUMI
 
 #./15_catpac.sh -w $WORKDIR -m $GENOMES -l $TMP -n $LOG 
 
@@ -161,9 +161,21 @@ echo -e "Current analysis project consists of $samplecnt samples\n" > "$GenRep";
 
 #./21_iets.sh -w $WORKDIR -m $GENOMES 
 
-./22_replicon.sh -w $WORKDIR -m $GENOMES
+#./22_replicon.sh -w $WORKDIR -m $GENOMES
 
-#./99_reporting.sh -w $WORKDIR -n $LOG -l $TMP -r $REPORTING -q $ARCHIVE
+./23_bakta.sh
+
+./24_clinker.sh 
+
+./26_deeparg.sh -w $WORKDIR -m $GENOMES -l $TMP -n $LOG -r $REPORTING -c $POLISHED -u $RESFINDER -q $ARCHIVE
+
+./71_platon-plasmids.sh
+
+./72_plasmidfinder.sh
+
+./73_plascad.sh
+
+./99_reporting.sh -w $WORKDIR -n $LOG -l $TMP -r $REPORTING -q $ARCHIVE
 
 
 

@@ -7,7 +7,7 @@ conda activate deeparg_env;
 cnt=$(cat samples.txt | wc -l);
 
 
-while getopts "w:m:l:h:n:r:c:u:q:" opt; do
+while getopts "w:m:l:n:r:c:u:q:" opt; do
   case $opt in
      w)
       echo "-w was triggered! $OPTARG"
