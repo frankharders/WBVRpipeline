@@ -169,6 +169,8 @@ echo -e "Current analysis project consists of $samplecnt samples\n" > "$GenRep";
 
 ./26_deeparg.sh -w $WORKDIR -m $GENOMES -l $TMP -n $LOG -r $REPORTING -c $POLISHED -u $RESFINDER -q $ARCHIVE
 
+./28_salmonella-serotyper.sh
+
 ./71_platon-plasmids.sh
 
 ./72_plasmidfinder.sh
