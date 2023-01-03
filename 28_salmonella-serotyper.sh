@@ -2,119 +2,131 @@
 #
 ### salmonella serotyping using seqzero.2
 
+##  finalized 2022-12-30, frank harders
+##  can run seperately
+
+## ToDo sum list seroTypes?
+
 
 ##  activate the environment for this downstream analysis
 eval "$(conda shell.bash hook)";
-conda activate amr-serotypefinder;
-
+conda activate amr-seqzero;
 
 count0=1;
 countS=$(cat samples.txt | wc -l);
+
+#rm -rf "$PWD"/28_salmonellaSerotyping;
 
 mkdir -p "$PWD"/28_salmonellaSerotyping;
 
-
-seroPATH='/home/wbvr006/GIT/salmonellatypefinder';
+seroPATH='/home/wbvr006/GIT/SeqSero2/bin';
 seroDB='/home/wbvr006/GIT/salmonellatypefinder/mlst_db/';
 seroOUT="$PWD"/28_salmonellaSerotyping;
+
+rm "$seroOUT"/all.samples.salmonella-typing.final.results.tab;
+rm "$seroOUT"/all.samples.salmonella-typing.temp.results.tab;
+
 
 
 count0=1;
 countS=$(cat samples.txt | wc -l);
 
+while [ "$count0" -le "$countS" ];do
 
-while [ $count0 -le $countS ];do
+	SAMPLE=$(cat samples.txt | awk 'NR=='"$count0" );
+	
+	rm -rf "$seroOUT/$SAMPLE";
 
-rm -r "seroOUT/$SAMPLE";
+	mkdir -p "$seroOUT/$SAMPLE";	
 
-mkdir -p "$seroOUT/$SAMPLE";
+		echo "sample=$SAMPLE";
+
+## analysis must be conducted on reads, no assembled genome can be used at this point of time
+			R1=./02_polished/"$SAMPLE"/"$SAMPLE"_R1.QTR.adapter.correct.fq.gz;
+			R2=./02_polished/"$SAMPLE"/"$SAMPLE"_R2.QTR.adapter.correct.fq.gz;
+
+## not possible for assembled genomes
+  seroIn="$PWD"/genomes/$SAMPLE'_contigs.fa';
+
+				"$seroPATH"/SeqSero2_package.py -p10 -m a -t 2 -i "$R1" "$R2" -n "$SAMPLE" -d "$seroOUT"/"$SAMPLE";
 
 
-
-	SAMPLE=$(cat samples.txt | awk 'NR=='$count0 );
-
-seroIn="$PWD"/genomes/$SAMPLE'_contigs.fa';
-
-echo "sample=$SAMPLE";
-
-
-python3 $seroPATH/SalmonellaTypeFinder.py -s paired -o $seroOUT/$SAMPLE -d1 $seroDB ./02_polished/$SAMPLE/$SAMPLE*.QTR.adapter.correct.fq.gz ;
-
-#cat $spaOUT/$SAMPLE/*.tsv > $spaOUT/$SAMPLE/$SAMPLE.tsv;
-
-count0=$((count0+1));
-
+	count0=$((count0+1));
 done
+
+count1=1;
+countT=$(cat samples.txt | wc -l);
+
+while [ "$count1" -le "$countT" ];do
+
+	sample=$(cat samples.txt | awk 'NR=='"$count1");
+
+echo "$sample";
+
+
+## prepare files for overall results table 					
+		cat "$seroOUT"/"$sample"/SeqSero_result.tsv | head -n1 > "$seroOUT"/all.samples.salmonella-typing.head.tab;
+		cat "$seroOUT"/"$sample"/SeqSero_result.tsv | sed 1d >> "$seroOUT"/all.samples.salmonella-typing.temp.results.tab;
+
+## rename original headers into sample related headers for downstream processing
+			cat "$seroOUT"/"$sample"/Extracted_antigen_alleles.fasta | sed "s/\>NODE\_/\>"$sample"\_NODE\_/g" > "$seroOUT"/"$sample"/"$sample".extracted.antigen_alleles.fasta;
+			cat "$seroOUT"/"$sample"/"$sample"_R1.QTR.adapter.correct.fq.gz_H_and_O_and_specific_genes.fasta_mem.fasta | sed "s/\>NODE\_/\>"$sample"\_NODE\_/g" > "$seroOUT"/"$sample"_H_and_O_and_specific_genes.fasta;
+
+count1=$((count1+1));
+done
+
+cat "$seroOUT"/all.samples.salmonella-typing.head.tab "$seroOUT"/all.samples.salmonella-typing.temp.results.tab > "$seroOUT"/all.samples.salmonella-typing.final.results.tab;
+
+
 
 exit 1
 
-#usage: SalmonellaTypeFinder.py [-h] [-s {paired,single,assembled}]
-#                               [-o OUTPUT_TXT] [-t TMP_DIR] [-d JSON_MLST_DB]
-#                               [-m INT] [-f FRAC] [-st ST]
-#                               [--seromethod {seqsero,seqsero2}] [-p1 CGEMLST]
-#                               [-d1 CGEMLSTDB] [--python3 PYTHON3]
-#                               [--python2 PYTHON2] [--python2_env TXT]
-#                               [--seqsero SEQSERO] [--blastn BLASTN]
-#                               [--makeblastdb MAKEBLASTDB]
-#                               [--samtools SAMTOOLS] [--bwa BWA]
-#                               [--seqsero2 SEQSERO2]
-#                               FAST(Q|A) [FAST(Q|A) ...]
+
+##### SeqSero2_package
 #
-#Given raw data or an assembly files outputs the Serotype and MLST.
+#usage: SeqSero2_package.py -t <data_type> -m <mode> -i <input_data> [-d <output_directory>] [-p <number of threads>] [-b <BWA_algorithm>]
 #
-#positional arguments:
-#  FAST(Q|A)             Raw data in FASTQ format. Takes 1 (single-end) or 2
-#                        (paired-end) arguments.
+#Developper: Shaokang Zhang (zskzsk@uga.edu), Hendrik C Den-Bakker (Hendrik.DenBakker@uga.edu) and Xiangyu Deng (xdeng@uga.edu)
+#
+#Contact email:seqsero@gmail.com
+#
+#Version: v1.2.1
 #
 #optional arguments:
 #  -h, --help            show this help message and exit
-#  -s {paired,single,assembled}, --seq_type {paired,single,assembled}
-#                        Type of sequence: paired, single or assembled
-#  -o OUTPUT_TXT, --output OUTPUT_TXT
-#                        Path to file in which the results will be stored.
-#  -t TMP_DIR, --tmp_dir TMP_DIR
-#                        Temporary directory for storage of the results from
-#                        the external software.
-#  -d JSON_MLST_DB, --mlst_db JSON_MLST_DB
-#                        JSON formatted database used to predict serotypes from
-#                        MLST type. This option defaults to a database named
-#                        'db.json' located in the 'data' directory.
-#  -m INT, --mask_low_count_mlst INT
-#                        In the mlst<-->serovar database, ignore entries with
-#                        this number of isolates or fewer. This influences the
-#                        detailed MLST serovar output, but also the threshold
-#                        calculation, because the ignored entries will not be
-#                        included in the total sum of isolates with the given
-#                        MLST type and serovar. Default: 2
-#  -f FRAC, --fraction FRAC
-#                        Fraction of entries in mlst<-->serovar database that
-#                        needs to agree in order to call a serovar based on a
-#                        MLST type. Default: 0.75
-#  -st ST, --mlst ST     Optional. MLST type written as an integer. If given,
-#                        the programme will not find an MLST type but use the
-#                        one provided.
-#  --seromethod {seqsero,seqsero2}
-#                        Determines which version of SeqSero to use. Options
-#                        are 'seqsero' and 'seqsero2'. Note SeqSero2 is not yet
-#                        published and is currently still in the development
-#                        stage. Default: seqsero
-#  -p1 CGEMLST, --cgemlst_path CGEMLST
-#                        Path to cge mlst tool. Default: mlst.py
-#  -d1 CGEMLSTDB, --cgemlstdb_path CGEMLSTDB
-#                        Path to mlst database used for cge mlst tool.
-#  --python3 PYTHON3     Path to python3. Default: path to calling interpreter.
-#  --python2 PYTHON2     Path to python2.7. Default: python2.7
-#  --python2_env TXT     Path to a list of commands that will be executed just
-#                        before executing SeqSero. On most systems this won't
-#                        be necessary. The commands to be executed can set the
-#                        environment needed for SeqSero to run (e.g., the
-#                        python 2.7 environment).
-#  --seqsero SEQSERO     Path to SeqSero.py. Default: SeqSero.py
-#  --blastn BLASTN       Path to blastn. Default: blastn
-#  --makeblastdb MAKEBLASTDB
-#                        Path to makeblastdb. Default: makeblastdb
-#  --samtools SAMTOOLS   Path to samtools v. 0.18. Default: samtools
-#  --bwa BWA             Path to bwa. Default: bwa
-#  --seqsero2 SEQSERO2   Path to SeqSero2_package.py. Default:
-#                        SeqSero2_package.py
+#  -i I [I ...]          <string>: path/to/input_data
+#  -t {1,2,3,4,5}        <int>: '1' for interleaved paired-end reads, '2' for
+#                        separated paired-end reads, '3' for single reads, '4'
+#                        for genome assembly, '5' for nanopore reads
+#                        (fasta/fastq)
+#  -b {sam,mem}          <string>: algorithms for bwa mapping for allele mode;
+#                        'mem' for mem, 'sam' for samse/sampe; default=mem;
+#                        optional; for now we only optimized for default 'mem'
+#                        mode
+#  -p P                  <int>: number of threads for allele mode, if p >4,
+#                        only 4 threads will be used for assembly since the
+#                        amount of extracted reads is small, default=1
+#  -m {k,a}              <string>: which workflow to apply, 'a'(raw reads
+#                        allele micro-assembly), 'k'(raw reads and genome
+#                        assembly k-mer), default=a
+#  -n N                  <string>: optional, to specify a sample name in the
+#                        report output
+#  -d D                  <string>: optional, to specify an output directory
+#                        name, if not set, the output directory would be
+#                        'SeqSero_result_'+time stamp+one random number
+#  -c                    <flag>: if '-c' was flagged, SeqSero2 will only output
+#                        serotype prediction without the directory containing
+#                        log files
+#  -s                    <flag>: if '-s' was flagged, SeqSero2 will not output
+#                        header in SeqSero_result.tsv
+#  --phred_offset {33,64,auto}
+#                        <33|64|auto>: offset for FASTQ file quality scores,
+#                        default=auto
+#  --check               <flag>: use '--check' flag to check the required
+#                        dependencies
+#  -v, --version         show program's version number and exit
 #
+#
+#####
+
+
